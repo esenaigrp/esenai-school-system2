@@ -1,0 +1,87 @@
+{
+  "info": {
+    "name": "School Entry-Exit Demo",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth - Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"admin@moiforcesacademy.ac.ke\", \"password\": \"Admin@123\"}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/v1/auth/login",
+          "host": [
+            "http://localhost:8080"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "login"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Events (admin)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/v1/events",
+          "host": [
+            "http://localhost:8080"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "events"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Device -> Post Event",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"device_id\": \"dev-1\", \"seq\": 1, \"events\": [{\"student_reg_no\": \"MOIFA-2025-001\", \"event_type\": \"DEPARTURE\", \"timestamp\": \"2025-10-23T08:25:07.790771Z\", \"reason_code\": \"SICK\"}]}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/v1/device/events",
+          "host": [
+            "http://localhost:8080"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "device",
+            "events"
+          ]
+        }
+      }
+    }
+  ]
+}
