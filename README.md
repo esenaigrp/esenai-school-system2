@@ -1,4 +1,5 @@
 # Esenai School System – Moi Forces Academy Baseline
+![Build Status](https://github.com/esenaigrp/esenai-school-system2/actions/workflows/ci.yml/badge.svg)
 
 > A school entry & exit management platform built by **Esenai Group Ltd** for Moi Forces Academy.  
 > Tracks students’ biometric entry and exit, notifies parents instantly, and allows the school admin to manage permissions in real-time.
