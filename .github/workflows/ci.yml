@@ -1,4 +1,4 @@
-name: CI
+name: Esenai School System CI
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
 
 jobs:
   build:
+    name: Build & Test (Backend + Frontend)
     runs-on: ubuntu-latest
 
     services:
@@ -20,18 +21,10 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U school -d schooldb"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-    env:
-      DB_HOST: localhost
-      DB_PORT: 5432
-      DB_USER: school
-      DB_PASSWORD: schoolpass
-      DB_NAME: schooldb
-      NODE_ENV: test
+          --health-cmd="pg_isready -U school -d schooldb"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
       - name: Checkout Repository
@@ -40,22 +33,39 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 18
+          cache: 'npm'
 
       - name: Install Backend Dependencies
-        working-directory: ./backend
+        working-directory: backend
         run: npm ci
 
-      - name: Run Backend Build (Lint/Test)
-        working-directory: ./backend
+      - name: Lint & Test Backend
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://school:schoolpass@localhost:5432/schooldb
         run: |
-          npm run lint || echo "Lint warnings"
-          npm test || echo "Tests skipped"
+          npm run lint --if-present
+          npm test --if-present
 
       - name: Install Frontend Dependencies
-        working-directory: ./frontend
+        working-directory: frontend
         run: npm ci
 
-      - name: Run Frontend Build
-        working-directory: ./frontend
+      - name: Build Frontend
+        working-directory: frontend
         run: npm run build
+
+      - name: Upload Frontend Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist/
+
+  docker:
+    name: Docker Compose Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker Images
+        run: docker compose build
