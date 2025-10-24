@@ -1,35 +1,49 @@
 version: '3.8'
+
 services:
   postgres:
     image: postgres:15-alpine
+    container_name: school_postgres
     environment:
-      - POSTGRES_USER=school
-      - POSTGRES_PASSWORD=schoolpass
-      - POSTGRES_DB=schooldb
-    volumes:
-      - pgdata:/var/lib/postgresql/data
+      POSTGRES_USER: ${DB_USER:-school}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-schoolpass}
+      POSTGRES_DB: ${DB_NAME:-schooldb}
     ports:
       - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-school} -d ${DB_NAME:-schooldb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: school_backend
     ports:
       - "8080:8080"
     environment:
-      - PORT=8080
-      - JWT_SECRET=devsecret
-      - DATABASE_URL=postgresql://school:schoolpass@postgres:5432/schooldb
+      PORT: 8080
+      JWT_SECRET: ${JWT_SECRET:-devsecret}
+      DATABASE_URL: postgresql://${DB_USER:-school}:${DB_PASSWORD:-schoolpass}@postgres:5432/${DB_NAME:-schooldb}
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     volumes:
       - ./backend:/app
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: school_frontend
     ports:
       - "5173:5173"
-    environment:
-      - PORT=5173
+    depends_on:
+      - backend
     volumes:
       - ./frontend:/app
 
